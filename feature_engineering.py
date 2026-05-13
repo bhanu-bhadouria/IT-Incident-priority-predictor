@@ -1,4 +1,5 @@
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 df = pd.read_csv("incidents_day1.csv")
 print(df.shape)
@@ -32,3 +33,10 @@ print("\nescalation_risk distribution:")
 print(df['escalation_risk'].value_counts())
 
 print(df.groupby('is_high_priority')['impact_urgency_score'].mean())
+
+label_encoders = {}
+for col in ['contact_type', 'category', 'subcategory']:
+    le = LabelEncoder()
+    df[col] = le.fit_transform(df[col].astype(str))
+    label_encoders[col] = le
+    print(f"{col} classes: {le.classes_}")
