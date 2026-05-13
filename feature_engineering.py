@@ -1,5 +1,7 @@
 import pandas as pd
+import joblib
 from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
 
 df = pd.read_csv("incidents_day1.csv")
 print(df.shape)
@@ -40,3 +42,32 @@ for col in ['contact_type', 'category', 'subcategory']:
     df[col] = le.fit_transform(df[col].astype(str))
     label_encoders[col] = le
     print(f"{col} classes: {le.classes_}")
+
+# Step 6: Class imbalance analysis
+print(df['is_high_priority'].value_counts())
+print(df['is_high_priority'].value_counts(normalize=True))
+
+n = len(df)
+n_class_1 = df['is_high_priority'].sum()
+weight_class_1 = n / (2 * n_class_1)
+print(f"Manual class_weight for class 1: {weight_class_1:.4f}")
+
+drop_cols = ['is_high_priority', 'priority', 'priority_raw', 'number', 'opened_at', 'caller_id', 'opened_by',
+             'made_sla', 'incident_state', 'u_priority_confirmation', 'sys_mod_count', 'active', 'knowledge', 'problem_id', 'cmdb_ci', 'sys_created_by', 'sys_created_at', 'sys_updated_by', 'sys_updated_at']
+X = df.drop(columns=[c for c in drop_cols if c in df.columns])
+y = df['is_high_priority']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
+print(f"X_train: {X_train.shape}, X_test: {X_test.shape}")
+print(f"y_train: {y_train.shape}, y_test: {y_test.shape}")
+print(f"y_train class ratio:\n{y_train.value_counts(normalize=True)}")
+print(f"y_test class ratio:\n{y_test.value_counts(normalize=True)}")
+print(X.columns.tolist())
+
+X_train.to_csv("X_train.csv", index=False)
+X_test.to_csv("X_test.csv", index=False)
+y_train.to_csv("y_train.csv", index=False)
+y_test.to_csv("y_test.csv", index=False)
+joblib.dump(label_encoders, "label_encoders.joblib")
+print("All files saved.")
