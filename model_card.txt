@@ -1,0 +1,112 @@
+MODEL CARD — IT Incident Priority Predictor
+============================================
+Last updated: 2026-05-14
+Model file:   best_model_final.joblib
+Threshold:    0.7
+
+
+1. WHAT DOES THE MODEL DO?
+--------------------------
+Given the attributes of an incoming IT support ticket, the model predicts
+whether it should be classified as High Priority (P1) or Normal, so that
+critical incidents can be routed and escalated faster without relying on
+manual triage.
+
+
+2. HOW WAS IT TRAINED?
+-----------------------
+Data source:    incidents_day1.csv — IT incident records from a ServiceNow-style
+                ticketing system.
+Training size:  19,934 samples (80% of 24,918 total records)
+Test size:      4,984 samples (20%)
+Target:         is_high_priority (1 = High Priority, 0 = Normal)
+Class split:    ~9.7% High Priority, ~90.3% Normal
+
+Features used (18 total):
+  - impact, urgency, impact_urgency_score
+  - reassignment_count, reopen_count, escalation_risk
+  - is_business_hours, is_weekend, is_night, quarter
+  - contact_type, category, subcategory (label-encoded)
+  - location, assignment_group (label-encoded)
+
+Algorithm:      XGBoost (XGBClassifier)
+Key parameters: n_estimators=1000, learning_rate=0.05, max_depth=4,
+                scale_pos_weight=9.33, early_stopping_rounds=20,
+                eval_metric=aucpr
+
+Leakage columns explicitly dropped before training:
+  priority, priority_raw, made_sla, incident_state,
+  u_priority_confirmation, active, and system metadata fields.
+
+
+3. HOW WELL DOES IT PERFORM?
+-----------------------------
+Evaluated on the held-out test set (4,984 samples) at threshold = 0.7.
+
+Metric         | High Priority class
+---------------+--------------------
+Precision      | ~0.65
+Recall         | ~0.93
+F1 Score       | ~0.76
+ROC-AUC        | 0.99
+
+Model comparison at default threshold (0.5):
+
+Model         | Precision | Recall | F1   | AUC
+--------------+-----------+--------+------+------
+Decision Tree | 0.50      | 0.99   | 0.67 | 0.99
+Random Forest | 0.39      | 1.00   | 0.56 | 0.99
+XGBoost       | 0.65      | 0.93   | 0.76 | 0.99
+
+Threshold 0.7 was chosen to reduce false alarms (normal tickets flagged as
+High Priority) while accepting a small increase in missed High Priority
+incidents. This tradeoff is explicit and documented.
+
+
+4. LIMITATIONS
+--------------
+- Trained on a single day's data (incidents_day1.csv). Incident patterns
+  may shift across days, weeks, or after organisational changes. The model
+  should be retrained regularly.
+
+- Class imbalance (9:1) means the model has seen far fewer High Priority
+  examples. Edge cases within that class may be underrepresented.
+
+- Label encoding for location, category, and subcategory means the model
+  cannot handle category values it has never seen — unseen labels at
+  inference time will cause errors without preprocessing guards.
+
+- The model has no knowledge of ticket text or free-text description fields.
+  Incidents where priority is signalled primarily in the description will
+  be missed.
+
+- scale_pos_weight was tuned for this dataset's class ratio. If the ratio
+  shifts significantly in production, the weight should be recalculated.
+
+
+5. WHO SHOULD USE IT AND HOW?
+------------------------------
+Intended users:   IT Operations teams, L1/L2 support engineers, ITSM platform
+                  administrators (e.g. ServiceNow, IBM Watson AIOps).
+
+Intended use:     Automated first-pass triage of incoming tickets. The model
+                  output should be presented as a recommendation to engineers,
+                  not as a final automated decision without human review.
+
+Deployment:       Load best_model_final.joblib and threshold.joblib at startup.
+                  Encode incoming ticket features using the saved label_encoders.joblib
+                  and match column order using feature_list.joblib.
+                  Flag the ticket if predict_proba()[:, 1] >= 0.7.
+
+
+6. WHAT SHOULD IT NEVER BE USED FOR?
+--------------------------------------
+- Fully automated ticket closure or resolution without human review.
+- Determining SLA breach liability without audit — model errors can
+  misclassify tickets with financial or contractual consequences.
+- Use outside of IT incident management (e.g. HR tickets, change requests,
+  procurement) — the feature set and training data are specific to
+  incident-type records.
+- Deployment on data from a different organisation or ticketing system
+  without retraining — category taxonomies, team structures, and priority
+  definitions vary significantly across enterprises.

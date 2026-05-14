@@ -6,10 +6,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, ConfusionMatrixDisplay, precision_score, recall_score, f1_score, roc_auc_score, RocCurveDisplay
 
 # Load preprocessed splits from feature_engineering.py output
-X_train = pd.read_csv("X_train.csv")
-X_test = pd.read_csv("X_test.csv")
-y_train = pd.read_csv("y_train.csv").squeeze()
-y_test = pd.read_csv("y_test.csv").squeeze()
+X_train = pd.read_csv("../data/processed/X_train.csv")
+X_test = pd.read_csv("../data/processed/X_test.csv")
+y_train = pd.read_csv("../data/processed/y_train.csv").squeeze()
+y_test = pd.read_csv("../data/processed/y_test.csv").squeeze()
 
 print(f"X_train: {X_train.shape}")
 print(f"X_test:  {X_test.shape}")
@@ -31,7 +31,7 @@ print(classification_report(y_test, y_pred, target_names=['Normal', 'High Priori
 disp = ConfusionMatrixDisplay.from_estimator(model, X_test, y_test, display_labels=['Normal', 'High Priority'], cmap='Blues')
 disp.ax_.set_title("Decision Tree - Confusion Matrix")
 plt.tight_layout()
-plt.savefig("confusion_matrix_dt.png")
+plt.savefig("../outputs/plots/confusion_matrix_dt.png")
 plt.show()
 print("Saved confusion_matrix_dt.png")
 
@@ -46,7 +46,7 @@ print(classification_report(y_test, y_pred_rf, target_names=['Normal', 'High Pri
 disp_rf = ConfusionMatrixDisplay.from_estimator(rf_model, X_test, y_test, display_labels=['Normal', 'High Priority'], cmap='Greens')
 disp_rf.ax_.set_title("Random Forest - Confusion Matrix")
 plt.tight_layout()
-plt.savefig("confusion_matrix_rf.png")
+plt.savefig("../outputs/plots/confusion_matrix_rf.png")
 plt.show()
 print("Saved confusion_matrix_rf.png")
 
@@ -83,7 +83,7 @@ plt.gca().invert_yaxis()  # highest importance at top
 plt.xlabel('Importance')
 plt.title('Random Forest - Feature Importance')
 plt.tight_layout()
-plt.savefig("feature_importance_rf.png")
+plt.savefig("../outputs/plots/feature_importance_rf.png")
 plt.show()
 print("Saved feature_importance_rf.png")
 
@@ -98,7 +98,7 @@ ax.plot([0, 1], [0, 1], 'k--', label='Random (AUC = 0.50)')
 ax.set_title("ROC Curve Comparison")
 ax.legend(loc='lower right')
 plt.tight_layout()
-plt.savefig("roc_curve_comparison.png")
+plt.savefig("../outputs/plots/roc_curve_comparison.png")
 plt.show()
 print("Saved roc_curve_comparison.png")
 

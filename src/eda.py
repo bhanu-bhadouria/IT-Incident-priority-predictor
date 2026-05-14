@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-df = pd.read_csv("incidents_day1.csv")
+df = pd.read_csv("../data/raw/incidents_day1.csv")
 
 # ── Step 1: First Look ────────────────────────────────────────────────────────
 print("Shape:", df.shape)
@@ -32,7 +32,7 @@ fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 df["priority"].value_counts().sort_index().plot(kind="bar", ax=axes[0], title="Priority Distribution")
 df["is_high_priority"].value_counts().plot(kind="bar", ax=axes[1], title="is_high_priority Distribution")
 plt.tight_layout()
-plt.savefig("target_distribution.png")
+plt.savefig("../outputs/plots/target_distribution.png")
 plt.show()
 
 # ── Step 4: Numerical Features ────────────────────────────────────────────────
@@ -45,7 +45,7 @@ for ax, col in zip(axes, num_cols):
     df[col].hist(bins=30, ax=ax)
     ax.set_title(col)
 plt.tight_layout()
-plt.savefig("numerical_distributions.png")
+plt.savefig("../outputs/plots/numerical_distributions.png")
 plt.show()
 
 # ── Step 5: Categorical Features ─────────────────────────────────────────────
@@ -68,7 +68,7 @@ plt.figure(figsize=(12, 6))
 sns.heatmap(cross, annot=True, fmt=".2f", cmap="Blues")
 plt.title("Category vs Priority (proportion)")
 plt.tight_layout()
-plt.savefig("category_vs_priority.png")
+plt.savefig("../outputs/plots/category_vs_priority.png")
 plt.show()
 
 # ── Step 7: Time-Based Patterns ───────────────────────────────────────────────
@@ -76,7 +76,7 @@ fig, axes = plt.subplots(1, 2, figsize=(14, 4))
 df.groupby("hour")["is_high_priority"].mean().plot(ax=axes[0], marker="o", title="High Priority Rate by Hour")
 df.groupby("day_of_week")["priority"].mean().plot(ax=axes[1], marker="o", title="Avg Priority by Day of Week")
 plt.tight_layout()
-plt.savefig("time_patterns.png")
+plt.savefig("../outputs/plots/time_patterns.png")
 plt.show()
 
 # ── Step 8: Correlation Matrix ────────────────────────────────────────────────
@@ -85,5 +85,5 @@ plt.figure(figsize=(12, 8))
 sns.heatmap(numeric_df.corr(), annot=True, fmt=".2f", cmap="coolwarm", center=0)
 plt.title("Correlation Matrix")
 plt.tight_layout()
-plt.savefig("correlation_matrix.png")
+plt.savefig("../outputs/plots/correlation_matrix.png")
 plt.show()

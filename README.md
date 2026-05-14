@@ -8,66 +8,162 @@ This project focuses on analyzing IT incident data and building predictive model
 
 ## Project Structure
 
-- **EDA.py** - Exploratory Data Analysis script for understanding incident data patterns
-- **feature_engineering.py** - Feature engineering pipeline for model preparation
-- **model_training.py** - Model training, evaluation, and comparison
-- **incidents_day1.csv** - Sample incident dataset
-- **Visualizations**:
-  - `category_vs_priority.png` - Distribution analysis across categories
-  - `correlation_matrix.png` - Feature correlation heatmap
-  - `numerical_distributions.png` - Distribution of numerical features
-  - `target_distribution.png` - Priority distribution analysis
-  - `time_patterns.png` - Temporal patterns in incidents
-  - `confusion_matrix_dt.png` - Decision Tree confusion matrix
-  - `confusion_matrix_rf.png` - Random Forest confusion matrix
-  - `feature_importance_rf.png` - Random Forest feature importances
-  - `roc_curve_comparison.png` - ROC curve comparison
+```
+IT-incident-priority-predictor/
+├── README.md                          # This file
+├── model_card.txt                     # Model documentation — intended use, metrics, limitations
+├── requirements.txt                   # Python dependencies
+├── .gitignore                         # Git ignore rules
+│
+├── data/
+│   ├── raw/                          # Original datasets
+│   │   └── incidents_day1.csv
+│   └── processed/                    # Preprocessed data splits
+│       ├── X_train.csv
+│       ├── X_test.csv
+│       ├── y_train.csv
+│       └── y_test.csv
+│
+├── src/                              # Source code
+│   ├── __init__.py
+│   ├── eda.py                        # Exploratory Data Analysis
+│   ├── feature_engineering.py        # Feature engineering & preprocessing
+│   ├── model_training.py             # Decision Tree & Random Forest training
+│   └── xgboost_model.py              # XGBoost training & SHAP analysis
+│
+├── models/                           # Trained model artifacts
+│   ├── best_model_day3.joblib        # Random Forest model
+│   ├── best_model_final.joblib       # XGBoost model
+│   ├── label_encoders.joblib         # Categorical encoders
+│   ├── feature_list.joblib           # Feature names
+│   └── threshold.joblib              # Decision threshold
+│
+├── outputs/
+│   ├── plots/                        # Visualization outputs
+│   │   ├── category_vs_priority.png
+│   │   ├── confusion_matrix_dt.png
+│   │   ├── confusion_matrix_rf.png
+│   │   ├── confusion_matrix_xgb.png
+│   │   ├── correlation_matrix.png
+│   │   ├── feature_importance_rf.png
+│   │   ├── numerical_distributions.png
+│   │   ├── precision_recall_xgb.png
+│   │   ├── roc_curve_comparison.png
+│   │   ├── shap_summary.png
+│   │   ├── shap_waterfall.png
+│   │   ├── target_distribution.png
+│   │   └── time_patterns.png
+│   └── reports/                      # Analysis reports
+│
+├── notebooks/                        # Jupyter notebooks (optional)
+└── venv/                             # Virtual environment
+```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.7+
-- pandas
-- scikit-learn
-- matplotlib
-- seaborn
-- joblib
+- Python 3.8+
+- pip or conda
 
 ### Installation
 
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd IT-incident-priority-predictor
+```
+
+2. Create a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # macOS/Linux
+# or
+venv\Scripts\activate  # Windows
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-### Usage
+## Usage
 
-1. Run exploratory data analysis:
-```bash
-python EDA.py
-```
+Run the pipeline in order:
 
-2. Execute feature engineering:
+### 1. Exploratory Data Analysis
 ```bash
-python feature_engineering.py
+python -m src.eda
 ```
+Generates visualizations for understanding data patterns.
 
-3. Train and evaluate models:
+### 2. Feature Engineering & Preprocessing
 ```bash
-python model_training.py
+python -m src.feature_engineering
 ```
+Prepares data splits and creates encoded features.
+
+### 3. Model Training (Baseline Models)
+```bash
+python -m src.model_training
+```
+Trains Decision Tree and Random Forest models with evaluation metrics.
+
+### 4. Advanced Model (XGBoost with SHAP)
+```bash
+python -m src.xgboost_model
+```
+Trains XGBoost with early stopping and generates SHAP explanations.
 
 ## Data
 
-The primary dataset (`incidents_day1.csv`) contains incident records with various attributes including category, priority levels, and temporal information.
+- **Raw Data**: `data/raw/incidents_day1.csv` - Original incident records
+- **Processed Data**: `data/processed/` - Train/test splits (generated by feature_engineering.py)
 
-## Analysis & Insights
+### Dataset Features
 
-The project includes comprehensive visualizations and analysis of:
-- Incident categories and their priority distributions
-- Correlation patterns between features
-- Numerical feature distributions
-- Temporal patterns in incident occurrence
+- **Categorical**: category, subcategory, contact_type, location, assignment_group
+- **Numerical**: impact, urgency, reassignment_count, reopen_count, sys_mod_count
+- **Temporal**: opened_at (hour, day_of_week, quarter)
+- **Target**: is_high_priority (binary classification)
+
+## Models & Results
+
+### Baseline Models (model_training.py)
+- **Decision Tree**: Precision 0.50, Recall 0.99, F1 0.67, AUC 0.99
+- **Random Forest**: Precision 0.39, Recall 1.00, F1 0.56, AUC 0.99
+
+### Production Model (xgboost_model.py)
+- **XGBoost**: Optimized with early stopping on AUCPR metric
+- **Feature Importance**: Via permutation importance
+- **Explainability**: SHAP summary and waterfall plots
+
+## Key Insights
+
+- Strong temporal patterns in incident priorities (business hours vs. after-hours)
+- Impact and urgency are primary drivers of priority classification
+- Escalation risk (reassignments + reopens) is a strong signal
+- Class imbalance (≈9.7% high priority) requires careful threshold tuning
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `src/eda.py` | Data exploration and visualization |
+| `src/feature_engineering.py` | Feature creation, encoding, and train/test split |
+| `src/model_training.py` | Baseline model training and comparison |
+| `src/xgboost_model.py` | Advanced model with SHAP analysis |
+| `models/best_model_final.joblib` | Trained XGBoost model for predictions |
+
+## Dependencies
+
+See `requirements.txt` for full list. Key packages:
+- pandas
+- scikit-learn
+- xgboost
+- matplotlib & seaborn
+- shap
+- joblib
 
 ## License
 

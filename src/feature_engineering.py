@@ -3,7 +3,7 @@ import joblib
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 
-df = pd.read_csv("incidents_day1.csv")
+df = pd.read_csv("../data/raw/incidents_day1.csv")
 print(df.shape)
 print(df.dtypes)
 print(df.head(3))
@@ -65,9 +65,9 @@ print(f"y_train class ratio:\n{y_train.value_counts(normalize=True)}")
 print(f"y_test class ratio:\n{y_test.value_counts(normalize=True)}")
 print(X.columns.tolist())
 
-X_train.to_csv("X_train.csv", index=False)
-X_test.to_csv("X_test.csv", index=False)
-y_train.to_csv("y_train.csv", index=False)
-y_test.to_csv("y_test.csv", index=False)
-joblib.dump(label_encoders, "label_encoders.joblib")
+X_train.to_csv("../data/processed/X_train.csv", index=False)
+X_test.to_csv("../data/processed/X_test.csv", index=False)
+y_train.to_csv("../data/processed/y_train.csv", index=False)
+y_test.to_csv("../data/processed/y_test.csv", index=False)
+joblib.dump(label_encoders, "../models/label_encoders.joblib")
 print("All files saved.")
