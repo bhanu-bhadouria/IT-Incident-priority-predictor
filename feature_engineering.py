@@ -37,7 +37,7 @@ print(df['escalation_risk'].value_counts())
 print(df.groupby('is_high_priority')['impact_urgency_score'].mean())
 
 label_encoders = {}
-for col in ['contact_type', 'category', 'subcategory']:
+for col in ['contact_type', 'category', 'subcategory','location', 'assignment_group']:
     le = LabelEncoder()
     df[col] = le.fit_transform(df[col].astype(str))
     label_encoders[col] = le
