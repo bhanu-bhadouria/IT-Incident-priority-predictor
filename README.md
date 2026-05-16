@@ -1,6 +1,27 @@
 # IT Incident Priority Predictor
 
-An AI-powered system for predicting and prioritizing IT incidents using machine learning techniques, with a Streamlit web app for single-ticket and batch prediction.
+Predict and escalate high-priority IT tickets using machine learning on ServiceNow-style incident data.
+
+![Streamlit](https://img.shields.io/badge/Streamlit-1.55-red)
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![XGBoost](https://img.shields.io/badge/XGBoost-3.2-green)
+
+**Live Demo:** [Coming Soon]
+
+## The Problem
+
+When a P1 incident hits — a network outage, a security breach, a crashed server — every minute without a response has a cost: SLA penalties, lost productivity, and engineers scrambling to triage a backlog manually. Today, L1 agents read incoming tickets and assign priority by hand, which is slow, inconsistent, and error-prone under pressure. This tool scores every ticket at the moment it's created, flags High Priority incidents automatically, and tells the engineer exactly which factors drove that decision — so the right tickets get escalated before the damage compounds.
+
+## Demo
+
+**Single Ticket Prediction — High Priority result with confidence score**
+![Prediction Result](assets/demo_high_priority.png)
+
+**SHAP Explanation — Top factors pushing toward High Priority**
+![SHAP High Priority](assets/demo_shap_high.png)
+
+**SHAP Explanation — Factors pushing toward Normal**
+![SHAP Normal](assets/demo_shap_normal.png)
 
 ## Overview
 
@@ -66,8 +87,8 @@ IT-incident-priority-predictor/
 
 ### Prerequisites
 
-- Python 3.8+
-- pip or conda
+- Python 3.11
+- pip
 
 ### Installation
 
@@ -95,8 +116,7 @@ pip install -r requirements.txt
 ### Run the Streamlit App
 
 ```bash
-cd src
-streamlit run app.py
+streamlit run src/app.py
 ```
 
 Opens a web app with two tabs:
@@ -104,6 +124,8 @@ Opens a web app with two tabs:
 - **Batch Upload** — upload a CSV of tickets, get predictions for all rows with a downloadable results file
 
 Required CSV columns for batch mode: `impact`, `urgency`, `reassignment_count`, `reopen_count`, `contact_type`, `category`, `subcategory`, `opened_at`, `sys_mod_count`, `notify`
+
+For batch predictions, use the sample file at `data/raw/sample_batch.csv`
 
 ---
 
@@ -145,18 +167,30 @@ Trains XGBoost with early stopping and generates SHAP explanations.
 - **Temporal**: opened_at (hour, day_of_week, quarter)
 - **Target**: is_high_priority (binary classification)
 
-## Models & Results
+## Model Performance
 
-### Baseline Models (model_training.py)
-- **Decision Tree**: Precision 0.50, Recall 0.99, F1 0.67, AUC 0.99
-- **Random Forest**: Precision 0.39, Recall 1.00, F1 0.56, AUC 0.99
+| Model                        | Precision | Recall | F1   | AUC  |
+|------------------------------|-----------|--------|------|------|
+| Decision Tree                | 0.50      | 0.99   | 0.67 | 0.99 |
+| Random Forest                | 0.39      | 1.00   | 0.56 | 0.99 |
+| XGBoost (threshold=0.7) ✓   | 0.65      | 0.93   | 0.76 | 0.99 |
 
-### Production Model (xgboost_model.py)
-- **XGBoost**: Optimized with early stopping on AUCPR metric
-- **Threshold**: 0.7 (tuned to reduce false alarms — fewer unnecessary on-call pages)
-- **At threshold 0.7**: Precision 0.65, Recall 0.93, F1 0.76, AUC 0.99
-- **Feature Importance**: Via permutation importance
-- **Explainability**: SHAP summary and waterfall plots; per-prediction SHAP in the Streamlit app
+Threshold 0.7 was chosen to favour recall over the default: catching 93% of real P1s while cutting false alarms, so on-call engineers aren't paged for tickets that turn out to be routine.
+
+## Architecture
+
+```mermaid
+graph LR
+  A[Raw Ticket Fields] --> B[predict.py]
+  B --> C[Feature Engineering]
+  C --> D[Label Encoding]
+  D --> E[XGBoost Model]
+  E --> F{Probability >= 0.7?}
+  F -->|Yes| G[🚨 High Priority]
+  F -->|No| H[✅ Normal]
+  G --> I[SHAP Explanation]
+  H --> I[SHAP Explanation]
+```
 
 ## Key Insights
 
