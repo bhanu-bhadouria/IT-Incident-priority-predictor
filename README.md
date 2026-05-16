@@ -226,8 +226,8 @@ See `requirements.txt` for full list. Key packages:
 
 ## License
 
-This project is part of the IT incident management system.
+For portfolio and educational use
 
 ## Contact
 
-For questions or contributions, please reach out to the development team.
+For questions or contributions, please reach out to me via github or linkedn
