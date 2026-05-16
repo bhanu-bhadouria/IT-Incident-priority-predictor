@@ -1,0 +1,21 @@
+impact,urgency,reassignment_count,reopen_count,contact_type,category,subcategory,opened_at,sys_mod_count,notify
+1,1,4,2,Phone,Network,Connectivity,2024-03-11 02:15:00,12,1
+3,3,0,0,Self service,Software,Installation,2024-03-11 10:30:00,2,0
+1,2,3,1,Email,Security,Malware,2024-03-11 23:45:00,8,1
+2,2,1,0,Chat,Hardware,Laptop,2024-03-12 09:00:00,4,0
+1,1,2,1,Phone,Security,Phishing,2024-03-12 03:30:00,15,2
+3,3,0,0,Walk-in,Email,Spam,2024-03-12 11:15:00,1,0
+1,1,5,3,Phone,Network,DNS,2024-03-12 01:00:00,20,3
+2,3,0,0,Self service,Software,Password reset,2024-03-13 14:00:00,3,0
+1,2,3,0,Email,Database,Slow query,2024-03-13 22:30:00,9,1
+3,2,1,1,Chat,Access,Account locked,2024-03-13 08:45:00,5,0
+1,1,0,2,Phone,Security,Access breach,2024-03-14 00:30:00,11,2
+2,2,2,1,Email,Network,VPN,2024-03-14 04:15:00,7,1
+3,3,0,0,Self service,Software,Performance,2024-03-14 13:00:00,2,0
+1,1,4,1,Phone,Database,Replication,2024-03-14 03:45:00,18,3
+2,1,1,0,Chat,Hardware,Monitor,2024-03-15 10:00:00,4,0
+1,2,2,2,Phone,Security,Vulnerability,2024-03-15 02:00:00,14,2
+3,3,0,0,Walk-in,Email,Not receiving,2024-03-15 09:30:00,1,0
+1,1,3,1,Phone,Network,Firewall,2024-03-15 23:00:00,16,1
+2,3,0,0,Self service,Software,License,2024-03-16 11:45:00,3,0
+1,1,2,1,Email,Database,Backup,2024-03-16 05:15:00,10,2

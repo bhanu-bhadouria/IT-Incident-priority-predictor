@@ -1,10 +1,10 @@
 # IT Incident Priority Predictor
 
-An AI-powered system for predicting and prioritizing IT incidents using machine learning techniques.
+An AI-powered system for predicting and prioritizing IT incidents using machine learning techniques, with a Streamlit web app for single-ticket and batch prediction.
 
 ## Overview
 
-This project focuses on analyzing IT incident data and building predictive models to automatically assign priority levels to incoming incidents. By leveraging exploratory data analysis (EDA) and feature engineering, the system can help organizations optimize incident response workflows.
+This project analyzes IT incident data and builds an XGBoost model to automatically flag High Priority incidents at the point of creation — before an engineer has manually triaged them. It includes a full prediction pipeline, per-prediction SHAP explanations, and a batch CSV upload mode for bulk assessment. Designed to reduce manual triage time for L1/L2 support teams.
 
 ## Project Structure
 
@@ -29,7 +29,10 @@ IT-incident-priority-predictor/
 │   ├── eda.py                        # Exploratory Data Analysis
 │   ├── feature_engineering.py        # Feature engineering & preprocessing
 │   ├── model_training.py             # Decision Tree & Random Forest training
-│   └── xgboost_model.py              # XGBoost training & SHAP analysis
+│   ├── xgboost_model.py              # XGBoost training & SHAP analysis
+│   ├── predict.py                    # Prediction pipeline (feature engineering + inference)
+│   ├── test_predict.py               # End-to-end pipeline validation (3 test cases)
+│   └── app.py                        # Streamlit web app (single ticket + batch upload)
 │
 ├── models/                           # Trained model artifacts
 │   ├── best_model_day3.joblib        # Random Forest model
@@ -89,7 +92,22 @@ pip install -r requirements.txt
 
 ## Usage
 
-Run the pipeline in order:
+### Run the Streamlit App
+
+```bash
+cd src
+streamlit run app.py
+```
+
+Opens a web app with two tabs:
+- **Single Ticket Prediction** — fill in ticket fields, get a High Priority / Normal prediction with confidence score and SHAP explanation
+- **Batch Upload** — upload a CSV of tickets, get predictions for all rows with a downloadable results file
+
+Required CSV columns for batch mode: `impact`, `urgency`, `reassignment_count`, `reopen_count`, `contact_type`, `category`, `subcategory`, `opened_at`, `sys_mod_count`, `notify`
+
+---
+
+### Run the pipeline in order (training):
 
 ### 1. Exploratory Data Analysis
 ```bash
@@ -135,8 +153,10 @@ Trains XGBoost with early stopping and generates SHAP explanations.
 
 ### Production Model (xgboost_model.py)
 - **XGBoost**: Optimized with early stopping on AUCPR metric
+- **Threshold**: 0.7 (tuned to reduce false alarms — fewer unnecessary on-call pages)
+- **At threshold 0.7**: Precision 0.65, Recall 0.93, F1 0.76, AUC 0.99
 - **Feature Importance**: Via permutation importance
-- **Explainability**: SHAP summary and waterfall plots
+- **Explainability**: SHAP summary and waterfall plots; per-prediction SHAP in the Streamlit app
 
 ## Key Insights
 
@@ -153,7 +173,11 @@ Trains XGBoost with early stopping and generates SHAP explanations.
 | `src/feature_engineering.py` | Feature creation, encoding, and train/test split |
 | `src/model_training.py` | Baseline model training and comparison |
 | `src/xgboost_model.py` | Advanced model with SHAP analysis |
+| `src/predict.py` | Prediction pipeline — feature engineering, encoding, inference |
+| `src/test_predict.py` | End-to-end validation: High Priority, Normal, and ambiguous cases |
+| `src/app.py` | Streamlit app — single ticket prediction + batch CSV upload |
 | `models/best_model_final.joblib` | Trained XGBoost model for predictions |
+| `model_card.txt` | Model documentation — metrics, limitations, intended use |
 
 ## Dependencies
 
@@ -164,6 +188,7 @@ See `requirements.txt` for full list. Key packages:
 - matplotlib & seaborn
 - shap
 - joblib
+- streamlit
 
 ## License
 
