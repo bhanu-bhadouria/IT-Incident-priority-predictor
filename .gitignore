@@ -44,3 +44,6 @@ env/
 .pytest_cache/
 .coverage
 htmlcov/
+
+data/**/*.csv
+!data/raw/sample_batch.csv
