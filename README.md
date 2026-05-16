@@ -6,7 +6,7 @@ Predict and escalate high-priority IT tickets using machine learning on ServiceN
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![XGBoost](https://img.shields.io/badge/XGBoost-3.2-green)
 
-**Live Demo:** [Coming Soon]
+**Live Demo:** https://it-incident-priority-predictor-bpsb.streamlit.app
 
 ## The Problem
 
