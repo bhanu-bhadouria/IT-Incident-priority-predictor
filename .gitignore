@@ -47,3 +47,4 @@ htmlcov/
 
 data/**/*.csv
 !data/raw/sample_batch.csv
+logs/predictions.jsonl

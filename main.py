@@ -1,8 +1,12 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import sys
+from src.monitor import log_prediction
 sys.path.insert(0, '/app')
 from src.predict import predict_priority
+
+import src.monitor as mon
+print("LOG PATH:", mon.LOG_PATH)
 
 app = FastAPI()
 
@@ -48,6 +52,10 @@ def predict(ticket: TicketInput):
         location=ticket.location,
         assignment_group=ticket.assignment_group,
     )
+    try:
+        log_prediction(ticket.model_dump(), str(label), float(probability))
+    except Exception as e:
+        print(f"Logging error: {e}")
     return {
         "label": str(label),
         "confidence": float(confidence),
