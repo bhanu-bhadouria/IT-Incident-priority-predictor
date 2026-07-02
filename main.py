@@ -5,14 +5,15 @@ import asyncio
 from concurrent.futures import ProcessPoolExecutor
 from typing import List
 from src.monitor import log_prediction
-sys.path.insert(0, '/app')
+
+sys.path.insert(0, "/app")
 from src.predict import predict_priority
 
 import src.monitor as mon
+
 print("LOG PATH:", mon.LOG_PATH)
 
 app = FastAPI()
-
 
 
 class TicketInput(BaseModel):
@@ -29,8 +30,10 @@ class TicketInput(BaseModel):
     location: str = "Unknown"
     assignment_group: str = "Unassigned"
 
+
 class BatchInput(BaseModel):
     tickets: List[TicketInput]
+
 
 @app.get("/")
 def root():
@@ -68,6 +71,7 @@ def predict(ticket: TicketInput):
         "probability": float(probability),
     }
 
+
 def run_prediction(ticket: TicketInput):
     return predict_priority(
         impact=ticket.impact,
@@ -84,22 +88,19 @@ def run_prediction(ticket: TicketInput):
         assignment_group=ticket.assignment_group,
     )
 
+
 @app.post("/predict/batch")
 async def predict_batch(batch: BatchInput):
     loop = asyncio.get_event_loop()
-    
+
     with ProcessPoolExecutor() as executor:
         futures = [
             loop.run_in_executor(executor, run_prediction, ticket)
             for ticket in batch.tickets
         ]
         results = await asyncio.gather(*futures)
-    
+
     return [
-        {
-            "label": str(r[0]),
-            "confidence": float(r[1]),
-            "probability": float(r[2])
-        }
+        {"label": str(r[0]), "confidence": float(r[1]), "probability": float(r[2])}
         for r in results
     ]
